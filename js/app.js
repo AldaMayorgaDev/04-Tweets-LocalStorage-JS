@@ -8,7 +8,16 @@ let tweets =[];
 eventListeners();
 
 function eventListeners() {
+    //Cuando el usuario agrega un nuevo tweet
     formulario.addEventListener('submit', agregarTweet);
+
+    //Cuando el documento esta listo
+
+    document.addEventListener('DOMContentLoaded', ()=>{
+        tweets= JSON.parse(localStorage.getItem('tweets')) || [];
+        //console.log('tweets', tweets)
+        crearHTML();
+    });
 }
 
 
@@ -37,7 +46,7 @@ function  agregarTweet(e) {
     //Añadir al arreglo de tweets
 
     tweets = [...tweets, tweetObj];
-    console.log('tweets :>> ', tweets);
+    //console.log('tweets :>> ', tweets);
 
     //Una vez agregado crear el HTML
     crearHTML();
@@ -73,18 +82,34 @@ function crearHTML(){
 
     if(tweets.length > 0){ /* Valida si el arreglo tweets tiene contenido */
         tweets.forEach((tweet) =>{
+            //Agregar un boton de eliminar
+            const btnEliminar= document.createElement('A');
+            btnEliminar.classList.add('borrar-tweet');
+            btnEliminar.innerText = 'X';
+
+            //Añadir funcion de eliminar
+            btnEliminar.onclick = () =>{
+                borrarTweet(tweet.id);
+            }
+
             //Crear html por cada tweet
 
             const li = document.createElement('li');
 
             //añadir texto
-            li.innerHTML = tweet.tweet;
+            li.innerText = tweet.tweet;
+                //Asignar boton a li
 
+                li.appendChild(btnEliminar);
             //Agregar al DOM
 
             listaTweets.appendChild(li);
-        })
+        });
     }
+
+    //LocalStorage
+
+    sincronizarStorage();
 }
 
 //Limpiar html
@@ -93,4 +118,17 @@ function limpiarHTML(){
     while (listaTweets.firstChild){
         listaTweets.removeChild(listaTweets.firstChild);
     }
+}
+
+//Agrega los tweets Actuales al localStorage
+
+function sincronizarStorage() {
+    localStorage.setItem('tweets', JSON.stringify(tweets));
+}
+
+//borar tweet
+
+function borrarTweet(id){
+    tweets = tweets.filter(tweet => tweet.id !== id);
+    crearHTML();
 }
